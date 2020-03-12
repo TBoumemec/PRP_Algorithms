@@ -27,17 +27,17 @@ public class Charts {
 	private static boolean lastData = false;
 
 	public Charts() {
+
+		JFrame frame = new JFrame("Protection signals"); // имя рамки
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // закрытие при закрытии?
+
 		plot = new CombinedDomainXYPlot(new NumberAxis("Time, sec"));
-
 		JFreeChart chart = new JFreeChart("Protection signals", plot);
-		chart.setBorderPaint(Color.black);
-		chart.setBorderVisible(true);
-		chart.setBackgroundPaint(Color.white);
 
-		JFrame frame = new JFrame("Protection signals");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().add(new ChartPanel(chart));
-		frame.setSize(1024, 768);
+		chart.setBackgroundPaint(Color.white); // цвет фона рамки
+
+		frame.getContentPane().add(new ChartPanel(chart)); // добавление макета графика в рамку
+		frame.setSize(1280, 800);
 		frame.show();
 	}
 
@@ -54,10 +54,14 @@ public class Charts {
 		NumberAxis rangeAxis = new NumberAxis(name); // добавление легенды
 		rangeAxis.setAutoRangeIncludesZero(false); // автоматический масштаб?
 		XYPlot subplot = new XYPlot(dataset, null, rangeAxis, new StandardXYItemRenderer()); // маска графика
-		subplot.setBackgroundPaint(Color.BLACK); // установить сетку на задний
+		subplot.setBackgroundPaint(Color.black); // установить сетку на задний
 		plot.add(subplot); // добавление маски
-		subplot.setWeight(7); // толщина?
+		subplot.setWeight(7); // высота рамки построения графика
 		datasetsAnalog.add(dataset);
+
+		addSeries(name + " (sv)", number, 0);
+		addSeries(name + " (rms)", number, 1);
+		addSeries(name + " Уставка", number, 2);
 	}
 
 	/**
@@ -107,20 +111,6 @@ public class Charts {
 		tempSeries = (XYSeries) datasetsAnalog.get(chart).getSeries().get(series);
 		// Шаг дискретизации при 80 т. за период; 0.001 при 20 т. за период
 		double timeStep = 0.00025;
-		currentTime = tempSeries.getMaxX() + timeStep;
-		tempSeries.add(currentTime, data);
-	}
-
-	/**
-	 * Строит Аналоговый сигнал на графике
-	 *
-	 * @param chart    - Порядковый номер графика
-	 * @param series   - Порядковый номер сигнала
-	 * @param data     - Добавляемое значение (double)
-	 * @param timeStep - шаг по времени
-	 */
-	public static void addAnalogData(int chart, int series, double data, double timeStep) {
-		tempSeries = (XYSeries) datasetsAnalog.get(chart).getSeries().get(series);
 		currentTime = tempSeries.getMaxX() + timeStep;
 		tempSeries.add(currentTime, data);
 	}
