@@ -110,7 +110,7 @@ public class Charts {
 	public static void addAnalogData(int chart, int series, double data) {
 		tempSeries = (XYSeries) datasetsAnalog.get(chart).getSeries().get(series);
 		// Шаг дискретизации при 80 т. за период; 0.001 при 20 т. за период
-		double timeStep = 0.00025;
+		double timeStep = 0.025;
 		currentTime = tempSeries.getMaxX() + timeStep;
 		tempSeries.add(currentTime, data);
 	}

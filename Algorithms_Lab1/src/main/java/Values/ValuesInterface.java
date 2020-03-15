@@ -21,5 +21,4 @@ public interface ValuesInterface {
     void setAny(int phase, double mean);
 
     double getAny(int phase);
-
 }

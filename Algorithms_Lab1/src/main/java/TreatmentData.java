@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * Класс считывания, расчета и визуализации данных
+ */
 public class TreatmentData {
     private File comtrCfg, comtrDat;
     private String line;
