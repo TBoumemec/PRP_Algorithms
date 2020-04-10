@@ -9,8 +9,7 @@ public class Main {
 
         Charts.createDiscreteChart("Flag", 0);
 
-        TreatmentData td = new TreatmentData();
-        td.start();
-
+        TreatmentData inD = new TreatmentData();
+        inD.start();
     }
 }

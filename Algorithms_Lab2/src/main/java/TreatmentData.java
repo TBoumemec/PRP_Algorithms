@@ -6,14 +6,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-/**
- * Класс считывания, расчета и визуализации данных
- */
+
+ /** Класс считывания, расчета и визуализации данных
+         */
 class TreatmentData {
     private File comtrCfg, comtrDat;
     private double[] k1;
     private double[] k2;
-    private TestThread[] threads;
 
     /*
     Name of unpacked comtrade file
@@ -111,3 +110,4 @@ class TreatmentData {
         }
     }
 }
+

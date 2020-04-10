@@ -38,7 +38,7 @@ public class Charts {
 
 		frame.getContentPane().add(new ChartPanel(chart)); // добавление макета графика в рамку
 		frame.setSize(1280, 800);
-		frame.setVisible(true);
+		frame.show();
 	}
 
 	/**

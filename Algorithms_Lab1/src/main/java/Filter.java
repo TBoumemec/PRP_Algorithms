@@ -1,12 +1,11 @@
 import Values.RMS;
 import Values.SV;
 
-public class Filter {
+class Filter {
 
 
     private double[][] buffer = new double[80][3];
     private double[] sum = new double[]{0, 0, 0};
-    private double k = 0.0125;
     private SV sv;
     private RMS rms;
     private int count = 0;
@@ -27,32 +26,17 @@ public class Filter {
         this.rms = rms;
     }
 
-    /**
-     *  универсальный метод расчета фильтра для всех фаз
-     */
-    @Deprecated
-    void calculate() {
-
-        for (int i = 0; i <= 2; i++) {
-        sum[i] += Math.abs(sv.getAny(i)) - buffer[count][i];
-        buffer[count][i] = Math.abs(sv.getAny(i));
-        rms.setAny(i, sum[i] * k);
-        rms.setTime(sv.getTime());
-
-    }
-
-        if (++count >= 80) count = 0;
-
-}
 
     /**
      * метод расчета фильтра для указанной фазы
+     * на выходе из фильтра - средневыпрямленное значение
      * @param phase рассчитываемая фаза
      */
     void calculate(int phase) {
 
         sum[phase] += Math.abs(sv.getAny(phase)) - buffer[count][phase];
         buffer[count][phase] = Math.abs(sv.getAny(phase));
+        double k = 0.0125;
         rms.setAny(phase, sum[phase] * k);
         rms.setTime(sv.getTime());
 

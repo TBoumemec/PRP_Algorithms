@@ -6,8 +6,16 @@ public class RelayLogic {
     private double tripPoint = 3.4;
     private boolean boo, key = false;
     private double timeWait, iniTime;
+    private double ustavka = 2;
 
-       /**
+    @Deprecated
+    void process() {
+        if ((rms.getPhA() > tripPoint) | (rms.getPhB() > tripPoint) |
+                (rms.getPhC() > tripPoint)) trip(true);
+        Charts.addAnalogData(0, 2, tripPoint);
+    }
+
+    /**
      * Логика защиты. Реализует пуск и срабатывание защиты
      * @param phase рассматриваемая фаза
      * @return логическое срабатывание защиты
@@ -27,7 +35,7 @@ public class RelayLogic {
 
         }
         else trip(false);
-        if (timeWait >= 1000) boo = true; // срабатывание защиты
+        if (timeWait >= 1000 && isTrue()) boo = true; // срабатывание защиты
 
         Charts.addAnalogData(phase, 2, tripPoint);
         return boo;
@@ -39,6 +47,10 @@ public class RelayLogic {
 
     void setRms(RMS rms) {
         this.rms = rms;
+    }
+
+    boolean isTrue(){
+        return rms.getHar() > ustavka;
     }
 
     void trip(boolean trip) {
