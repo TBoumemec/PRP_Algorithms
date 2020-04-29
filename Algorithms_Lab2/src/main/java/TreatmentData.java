@@ -1,5 +1,4 @@
-import Values.RMS;
-import Values.SV;
+import Values.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,21 +9,30 @@ import java.io.IOException;
  /** Класс считывания, расчета и визуализации данных
          */
 class TreatmentData {
+
     private File comtrCfg, comtrDat;
     private double[] k1;
     private double[] k2;
+    private double shift = (-30d/360)*2*Math.PI;
 
-    /*
+
+     /*
     Name of unpacked comtrade file
     PhA/AB/ABC__20/60/80  //  kind of short circuit // discritisation scale
      */
-    private String comtrName = "PhA80";
+    private String comtrName = "Trans2ObmVnutBC";
     // внимательно с путем файла
-    private String path = "C:\\Users\\Alexander\\JavaProjects\\MicropocessorRealyAlgorithms\\Algorithms_Lab1\\src\\data\\Начало линии\\";
+    private String path = "C:\\Users\\Alexander\\JavaProjects\\MicropocessorRealyAlgorithms\\Algorithms_Lab2\\src\\data\\";
 
+    private Filter HWFilter = new Filter();
+    private Filter LWFilter = new Filter();
+    private Filter deltaFilter = new Filter();
+    private Vector vecHW = new Vector();
+    private Vector vecLW = new Vector();
+    private Vector deltaVec = new Vector();
     private SV sv = new SV();
     private RMS rms = new RMS();
-    private Filter filter = new Filter();
+    private BlockLogic bl = new BlockLogic();
     private RelayLogic relayLogic = new RelayLogic();
 
     TreatmentData() {
@@ -34,14 +42,17 @@ class TreatmentData {
         comtrDat = new File(datName);
     }
 
-
     void start() throws IOException {
 
-        filter.setSv(sv);
-        filter.setRms(rms);
+        HWFilter.setVector(vecHW);
+        LWFilter.setVector(vecLW);
+        deltaFilter.setVector(deltaVec);
+
         relayLogic.setRms(rms);
+        relayLogic.setBL(bl);
 
         parseScaleCoefficients(comtrCfg);
+
         makeDataProcessing(comtrDat);
 
     }
@@ -66,11 +77,11 @@ class TreatmentData {
                 System.out.println("Number Data: " + numberData);
 
             }
-
-            if (lineNumber > 2 && lineNumber <= numberData + flagNumber) {
+            else if (lineNumber > 2 && lineNumber <= numberData + flagNumber) {
 
                 k1[count] = Double.parseDouble(line.split(",")[5]);
                 k2[count] = Double.parseDouble(line.split(",")[6]);
+
                 count++;
 
             }
@@ -87,27 +98,49 @@ class TreatmentData {
         outer:
         while ((line = br.readLine()) != null) { // outer - метка для выхода из внешнего цикла
             count++;
-            if (count < 3500 || count > 5000) continue; // позволяет срезать часть графика в норм режиме
+
+//            if (count > 100) continue; // позволяет срезать часть графика в норм режиме
             String[] lineData = line.split(",");
-            sv.setTime(Double.parseDouble(lineData[1]));
+            rms.setTime(Double.parseDouble(lineData[1]));
 
-            for (int i = 0; i < 3; i++) {
-                sv.setAny(i, Double.parseDouble(lineData[i + 2]) * k1[i] + k2[i]);
+            for (int phase = 0; phase < 3; phase++) {
 
-                filter.calculate(i); // расчет фильтра
+                double curHW = Double.parseDouble(lineData[phase + 2]) * k1[phase] + k2[phase];
+                double curLW = Double.parseDouble(lineData[phase + 5])* k1[phase + 3] + k2[phase + 3];
+
+                makeFourierCalculation(curHW, curLW, phase);
+
+                sv.setAny(phase, (deltaFilter.getDigitSV(count)));
+                rms.setAny(phase, deltaFilter.get1stRMSMean());
 
 
-                Charts.addAnalogData(i, 0, sv.getAny(i));
-                Charts.addAnalogData(i, 1, rms.getAny(i));
+                bl.setAny(phase, deltaFilter.get5thRMSMean()/deltaFilter.get1stRMSMean());
+                System.out.println(deltaFilter.get5thRMSMean()/deltaFilter.get1stRMSMean());
 
-                if (relayLogic.process(i)) {
-                    System.out.println("ТО сработала успешно");
+                Charts.addAnalogData(phase, 0, sv.getAny(phase));
+                Charts.addAnalogData(phase, 1, rms.getAny(phase));
+
+                relayLogic.calcStopCurrent(HWFilter.get1stRMSMean(), LWFilter.get1stRMSMean(),
+                        deltaFilter.getPhase(deltaVec.getAnyFx(phase), deltaVec.getAnyFy(phase),
+                                deltaFilter.getAmplitude(deltaVec.getAnyFx(phase),deltaVec.getAnyFy(phase))));
+
+                if (relayLogic.process(phase)) {
+                    System.out.println("aa");
                     break outer; // при срабатывании защиты происходит выход
                 }
-
-
             }
         }
+    }
+
+    private void makeFourierCalculation(double curHW, double curLW, int phase){
+        HWFilter.filterFourier(curHW, phase, 0);
+        LWFilter.filterFourier(curLW, phase, shift);
+
+        deltaVec.setAllF1(phase, vecHW.getAnyFx(phase) + vecLW.getAnyFx(phase),
+                vecHW.getAnyFy(phase) + vecLW.getAnyFy(phase));
+
+        deltaVec.setAllF5(phase, vecHW.getAnyF5x(phase) + vecLW.getAnyF5x(phase),
+                vecHW.getAnyF5y(phase) + vecLW.getAnyF5y(phase));
     }
 }
 

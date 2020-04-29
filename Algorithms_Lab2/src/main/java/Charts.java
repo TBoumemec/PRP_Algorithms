@@ -26,7 +26,7 @@ public class Charts {
 	private static double currentTime = 0.0;
 	private static boolean lastData = false;
 
-	public Charts() {
+	private Charts() {
 
 		JFrame frame = new JFrame("Protection signals"); // имя рамки
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // окончание программы при закрытии
@@ -47,7 +47,7 @@ public class Charts {
 	 * @param name   - Имя графика
 	 * @param number - Порядковый номер
 	 */
-	public static void createAnalogChart(String name, int number) {
+	static void createAnalogChart(String name, int number) {
 		if (charts == null) charts = new Charts(); // если объекта класса нет, то он создается
 
 		XYSeriesCollection dataset = new XYSeriesCollection();
