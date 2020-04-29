@@ -13,31 +13,7 @@ public class BlockLogic implements ValuesInterface{
 
     }
 
-    public double getPhA() {
-        return phA;
-    }
-
-    public void setPhA(double phA) {
-        this.phA = phA;
-    }
-
-    public double getPhB() {
-        return phB;
-    }
-
-    public void setPhB(double phB) {
-        this.phB = phB;
-    }
-
-    public double getPhC() {
-        return phC;
-    }
-
-    public void setPhC(double phC) {
-        this.phC = phC;
-    }
-
-    public void setAny(int phase, double mean) {
+    public void setMean(int phase, double mean) {
         switch (phase) {
             case (0):
                 this.phA = mean;
@@ -48,7 +24,7 @@ public class BlockLogic implements ValuesInterface{
         }
     }
 
-    public double getAny(int phase) {
+    public double getMean(int phase) {
         switch (phase) {
             case (0):
                 return phA;
@@ -68,7 +44,7 @@ public class BlockLogic implements ValuesInterface{
                 compare(phC, tripPoint);
     }
 
-    private boolean compare(double b, double a){
+    private boolean compare(double a, double b){
         return (a > b);
     }
 

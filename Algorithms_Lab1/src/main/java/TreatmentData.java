@@ -76,6 +76,8 @@ class TreatmentData {
 
             }
         }
+
+        br.close();
     }
 
     private void makeDataProcessing(File f) throws IOException {
@@ -109,5 +111,7 @@ class TreatmentData {
 
             }
         }
+
+        br.close();
     }
 }

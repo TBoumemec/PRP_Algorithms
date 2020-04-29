@@ -6,7 +6,7 @@ public interface ValuesInterface {
 
     void setTime(double time);
 
-    void setAny(int phase, double mean);
+    void setMean(int phase, double mean);
 
-    double getAny(int phase);
+    double getMean(int phase);
 }

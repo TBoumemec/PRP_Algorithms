@@ -3,7 +3,7 @@ import Values.RMS;
 
 public class RelayLogic {
 
-    private final double I_TO = 1; // ток начала торможения
+    private final double I_TO = 0.012; // ток начала торможения
     private final double K_UNIFORM = 1; // коэффициент однотипности
     private final double K_TP = 2.5; // коэффициент переходного процесса
     private final double E = 0.1; // относительная погрешность ТТ
@@ -46,31 +46,31 @@ public class RelayLogic {
     void calcStopCurrent(double a, double b, double c){
         if (Math.cos(c) < 0) stopCurrent = Math.sqrt(a * b * Math.cos(Math.PI - c));
         else stopCurrent = 0;
-
     }
 
-    void setTripPoint(){
+    double setTripPoint(){
         if (stopCurrent > blockCurrent){
-        tripPoint = minTripCurrent + stopCoefficent * (stopCurrent - blockCurrent);}
-        else tripPoint = minTripCurrent;
-
+        return minTripCurrent + stopCoefficent * (stopCurrent - blockCurrent);}
+        return minTripCurrent;
     }
 
     boolean process(int phase) {
 
-        setTripPoint();
+        tripPoint = setTripPoint();
+        System.out.println("puk " + tripPoint + " " + rms.getMean(phase));
 
-        if (rms.getAny(phase) > tripPoint) {
+        if (rms.getMean(phase) > tripPoint) {
+
             setTrip(true, phase);
 
 
 
-            System.out.println(
-                    "До отключения осталось: " + (timeSet - (timeWait = rms.getTime() - iniTime)));
 
         }
         else setTrip(false, phase);
 
+        System.out.println(
+                "До отключения осталось: " + (timeSet - (timeWait = rms.getTime() - iniTime)));
         if (timeWait >= timeSet) boo = true; // срабатывание защиты
 
         Charts.addAnalogData(phase, 2, tripPoint);
@@ -82,14 +82,14 @@ public class RelayLogic {
         if (!key) { // однократная логика пуска защиты
             iniTime = rms.getTime();
             key = true;
-
-            if (rms.getAny(phase) > cutOffCurrent) timeSet = 1000; // время срабатывания токовой отсечки
-            else timeSet = 5000; // время срабатывания ДТЗ
         }
+
+        if (rms.getMean(phase) > cutOffCurrent) timeSet = 1000; // время срабатывания токовой отсечки
+            else timeSet = 5000; // время срабатывания ДТЗ
+
     }
 
     private void delaunchingAuthority(){
-
         key = false;
         timeSet = Double.POSITIVE_INFINITY;
     }

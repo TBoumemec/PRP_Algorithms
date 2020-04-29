@@ -20,7 +20,7 @@ class TreatmentData {
     Name of unpacked comtrade file
     PhA/AB/ABC__20/60/80  //  kind of short circuit // discritisation scale
      */
-    private String comtrName = "Trans2ObmVnutBC";
+    private String comtrName = "Trans2ObmVneshABC";
     // внимательно с путем файла
     private String path = "C:\\Users\\Alexander\\JavaProjects\\MicropocessorRealyAlgorithms\\Algorithms_Lab2\\src\\data\\";
 
@@ -110,22 +110,22 @@ class TreatmentData {
 
                 makeFourierCalculation(curHW, curLW, phase);
 
-                sv.setAny(phase, (deltaFilter.getDigitSV(count)));
-                rms.setAny(phase, deltaFilter.get1stRMSMean());
+                sv.setMean(phase, (deltaFilter.getDigitSV(count)));
+                rms.setMean(phase, deltaFilter.get1stRMSMean());
 
 
-                bl.setAny(phase, deltaFilter.get5thRMSMean()/deltaFilter.get1stRMSMean());
-                System.out.println(deltaFilter.get5thRMSMean()/deltaFilter.get1stRMSMean());
+                bl.setMean(phase, deltaFilter.get5thRMSMean()/deltaFilter.get1stRMSMean());
+                System.out.println(bl.isBlocked());
 
-                Charts.addAnalogData(phase, 0, sv.getAny(phase));
-                Charts.addAnalogData(phase, 1, rms.getAny(phase));
+                Charts.addAnalogData(phase, 0, sv.getMean(phase));
+                Charts.addAnalogData(phase, 1, rms.getMean(phase));
 
                 relayLogic.calcStopCurrent(HWFilter.get1stRMSMean(), LWFilter.get1stRMSMean(),
                         deltaFilter.getPhase(deltaVec.getAnyFx(phase), deltaVec.getAnyFy(phase),
                                 deltaFilter.getAmplitude(deltaVec.getAnyFx(phase),deltaVec.getAnyFy(phase))));
 
                 if (relayLogic.process(phase)) {
-                    System.out.println("aa");
+                    System.out.println("puk");
                     break outer; // при срабатывании защиты происходит выход
                 }
             }

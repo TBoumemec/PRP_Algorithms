@@ -12,7 +12,7 @@ public class SV implements ValuesInterface {
 
     public void setTime(double time) { this.time = time;}
 
-    public void setAny(int phase, double mean) {
+    public void setMean(int phase, double mean) {
         switch (phase) {
             case (0):
                 this.phA = mean;
@@ -23,7 +23,7 @@ public class SV implements ValuesInterface {
         }
     }
 
-    public double getAny(int phase) {
+    public double getMean(int phase) {
         switch (phase) {
             case (0):
                 return phA;
