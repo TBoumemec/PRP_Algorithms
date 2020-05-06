@@ -1,9 +1,10 @@
-import Values.BlockLogic;
+import Charts.TimeDiagramChart;
+import Values.Blocking;
 import Values.RMS;
 
-public class RelayLogic {
+public class RelayLogicManager {
 
-    private final double I_TO = 0.012; // ток начала торможения
+    private final double I_TO = 0.01; // ток начала торможения
     private final double K_UNIFORM = 1; // коэффициент однотипности
     private final double K_TP = 2.5; // коэффициент переходного процесса
     private final double E = 0.1; // относительная погрешность ТТ
@@ -25,26 +26,37 @@ public class RelayLogic {
 
     private final double BL_K_DETUNE = 1.1; // коэффициент отстройки
     private final double K_ULTIM_LOAD = 1.5; // коэффициент предельной нагрузки
-    private final double relativeCurrent = 3; // ????
+    private final double relativeCurrent = 0.4; // ????
 
     private double blockCurrent = BL_K_DETUNE * K_ULTIM_LOAD * relativeCurrent; // ток блокировки
 
-    private double stopCoefficent = 0.5; // коэффициент торможения
+    private double stopCoefficent = 3; // коэффициент торможения
 
     private double stopCurrent;
 
-    private double tripPoint;
+    private double tripPoint; // значение уставки
 
-    private double timeWait, iniTime;
-    private double timeSet = Double.POSITIVE_INFINITY;
-
-    private RMS rms;
-    private BlockLogic bl;
-
+    private double timeWait, iniTime; // время до срабатывания защиты / время пуска защиты
+    private double timeSet = Double.POSITIVE_INFINITY; // время срабатывания защиты
     private boolean boo, key = false;
 
-    void calcStopCurrent(double a, double b, double c){
-        if (Math.cos(c) < 0) stopCurrent = Math.sqrt(a * b * Math.cos(Math.PI - c));
+    private RMS rms;
+    private Blocking bl;
+
+    public RMS getRms() {
+        return rms;
+    }
+
+    void setRms(RMS rms) {
+        this.rms = rms;
+    }
+
+    void setBL(Blocking bl) {
+        this.bl = bl;
+    }
+
+    void calcStopCurrent(double IHW, double ILW, double angle){
+        if (Math.cos(angle) < 0) stopCurrent = Math.sqrt(IHW * ILW * Math.cos(Math.PI - angle));
         else stopCurrent = 0;
     }
 
@@ -57,23 +69,25 @@ public class RelayLogic {
     boolean process(int phase) {
 
         tripPoint = setTripPoint();
-        System.out.println("puk " + tripPoint + " " + rms.getMean(phase));
+//        System.out.println("puk " + tripPoint + " " + rms.getMean(phase));
 
         if (rms.getMean(phase) > tripPoint) {
 
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             setTrip(true, phase);
-
-
-
-
+            System.out.println(
+                    "До отключения осталось: " + (timeSet - (timeWait = rms.getTime() - iniTime)));
         }
         else setTrip(false, phase);
 
-        System.out.println(
-                "До отключения осталось: " + (timeSet - (timeWait = rms.getTime() - iniTime)));
+
         if (timeWait >= timeSet) boo = true; // срабатывание защиты
 
-        Charts.addAnalogData(phase, 2, tripPoint);
+        TimeDiagramChart.addAnalogData(phase, 2, tripPoint);
 
         return boo;
     }
@@ -83,10 +97,8 @@ public class RelayLogic {
             iniTime = rms.getTime();
             key = true;
         }
-
         if (rms.getMean(phase) > cutOffCurrent) timeSet = 1000; // время срабатывания токовой отсечки
             else timeSet = 5000; // время срабатывания ДТЗ
-
     }
 
     private void delaunchingAuthority(){
@@ -94,25 +106,11 @@ public class RelayLogic {
         timeSet = Double.POSITIVE_INFINITY;
     }
 
-    public RMS getRms() {
-        return rms;
-    }
-
-    void setRms(RMS rms) {
-        this.rms = rms;
-    }
-
-    void setBL(BlockLogic bl) {
-        this.bl = bl;
-    }
-
     private void setTrip(boolean trip, int phase) {
-        Charts.addDiscreteData(0, trip);
-
+        TimeDiagramChart.addDiscreteData(0, trip);
         if (trip & !bl.isBlocked()) launchingAuthority(phase);
         else delaunchingAuthority();
     }
-
 }
 
 

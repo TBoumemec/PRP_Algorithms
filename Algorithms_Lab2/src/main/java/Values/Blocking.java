@@ -1,6 +1,6 @@
 package Values;
 
-public class BlockLogic implements ValuesInterface{
+public class Blocking implements ValuesInterface {
     private double phA = 0;
     private double phB = 0;
     private double phC = 0;
@@ -36,16 +36,19 @@ public class BlockLogic implements ValuesInterface{
         return -1;
     }
 
-    public boolean isBlocked(){
-        double tripPoint = 0.08;
+    /**
+     * если значение выше уставки, то блокировка срабатывает
+     * @return True/False
+     */
+    public boolean isBlocked() {
+        double tripPoint = 0.01; // уставка блокировки
 
         return compare(phA, tripPoint) ||
                 compare(phB, tripPoint) ||
                 compare(phC, tripPoint);
     }
 
-    private boolean compare(double a, double b){
+    private boolean compare(double a, double b) {
         return (a > b);
     }
-
 }

@@ -1,6 +1,7 @@
 import Values.*;
 
-class Vector {
+public class Vector {
+
 
     private double[] Fx = new double[3];
     private double[] Fy = new double[3];
@@ -10,7 +11,6 @@ class Vector {
     void setAnyFx(int phase, double mean) {
         Fx[phase] = mean;
     }
-
     double getAnyFx(int phase) {
         return Fx[phase];
     }
@@ -32,13 +32,13 @@ class Vector {
     double getAnyF5y(int phase) {return F5y[phase];}
 
     void setAllF1(int phase, double F1x, double F1y){
-        setAnyFx(phase, F1x);
-        setAnyFy(phase, F1y);
+        Fx[phase] = F1x;
+        Fy[phase] = F1y;
     }
 
-    void setAllF5(int phase, double F5x, double F5y){
-        setAnyF5x(phase, F5x);
-        setAnyF5y(phase, F5y);
+    void setAllF5(int phase, double F5xx, double F5yy){
+        F5x[phase] = F5xx;;
+        F5y[phase] = F5yy;
     }
 
 

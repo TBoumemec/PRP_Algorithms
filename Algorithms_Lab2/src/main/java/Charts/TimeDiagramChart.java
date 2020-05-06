@@ -1,3 +1,5 @@
+package Charts;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -15,10 +17,10 @@ import java.util.ArrayList;
 /**
  * Class for graphic visualisation current data and protection logic
  */
-public class Charts {
+public class TimeDiagramChart {
 
 	// https://www.cs.cmu.edu/~pattis/15-1XX/15-200/lectures/linkedlists/index.html
-	private static Charts charts; // что это
+	private static TimeDiagramChart charts; // что это
 	private static ArrayList<XYSeriesCollection> datasetsAnalog = new ArrayList<XYSeriesCollection>();
 	private static ArrayList<XYSeries> datasetsDiscrete = new ArrayList<XYSeries>();
 	private static CombinedDomainXYPlot plot;
@@ -26,7 +28,7 @@ public class Charts {
 	private static double currentTime = 0.0;
 	private static boolean lastData = false;
 
-	private Charts() {
+	private TimeDiagramChart() {
 
 		JFrame frame = new JFrame("Protection signals"); // имя рамки
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // окончание программы при закрытии
@@ -47,8 +49,8 @@ public class Charts {
 	 * @param name   - Имя графика
 	 * @param number - Порядковый номер
 	 */
-	static void createAnalogChart(String name, int number) {
-		if (charts == null) charts = new Charts(); // если объекта класса нет, то он создается
+	public static void createAnalogChart(String name, int number) {
+		if (charts == null) charts = new TimeDiagramChart(); // если объекта класса нет, то он создается
 
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		NumberAxis rangeAxis = new NumberAxis(name); // добавление легенды
@@ -71,7 +73,7 @@ public class Charts {
 	 * @param number - Порядковый номер
 	 */
 	public static void createDiscreteChart(String name, int number) {
-		if (charts == null) charts = new Charts();
+		if (charts == null) charts = new TimeDiagramChart();
 
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		NumberAxis rangeAxis = new NumberAxis(name);
@@ -110,7 +112,7 @@ public class Charts {
 	public static void addAnalogData(int chart, int series, double data) {
 		tempSeries = (XYSeries) datasetsAnalog.get(chart).getSeries().get(series);
 		// Шаг дискретизации при 80 т. за период; 0.001 при 20 т. за период
-		double timeStep = 0.025;
+		double timeStep = 0.001;
 		currentTime = tempSeries.getMaxX() + timeStep;
 		tempSeries.add(currentTime, data);
 	}

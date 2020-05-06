@@ -36,5 +36,4 @@ public class RMS implements ValuesInterface {
         }
         return -1;
     }
-
 }
