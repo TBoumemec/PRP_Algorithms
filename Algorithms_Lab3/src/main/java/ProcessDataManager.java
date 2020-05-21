@@ -13,19 +13,15 @@ class ProcessDataManager {
 
     private ImpedanceManager im = new ImpedanceManager(); // фильтр ВН
 
-
-    private RMS rms = new RMS();
+    private DigitSignal digitSignal = new DigitSignal();
     private BlockManager bm = new BlockManager();
     private RelayLogicManager relayManager = new RelayLogicManager();
 
     ProcessDataManager() {
         // внимательно с путем файла
         String path = "C:\\Users\\Alexander\\JavaProjects\\MicropocessorRealyAlgorithms\\Algorithms_Lab3\\src\\data\\Опыты\\";
-       /*
-   Name of unpacked comtrade file
-   PhA/AB/ABC__20/60/80  //  kind of short circuit // discritisation scale
-    */
-        String comtrName = "KZ6";
+
+        String comtrName = "KZ7";
         String cfgName = path + comtrName + ".cfg"; // имя конфигурационного файла
         comtrCfg = new File(cfgName); // конфигурационный файл
         String datName = path + comtrName + ".dat"; // имя файла данных
@@ -37,10 +33,10 @@ class ProcessDataManager {
         // задание фильтрам соответствующих векторов
 
         // задание логике РЗ соответствующих классов сигналов и блокировки
-        im.setRMS(rms);
-        relayManager.setRms(rms);
-        im.setBlock(bm);
-        relayManager.setBL(bm);
+        im.setDS(digitSignal);
+        relayManager.setDigitSignal(digitSignal);
+        im.setBlockManager(bm);
+        relayManager.setBlockManager(bm);
 
         // парсинг конфигурации файла
         parseConfigFile(comtrCfg);
@@ -103,11 +99,10 @@ class ProcessDataManager {
             if (count < 2000) continue; // позволяет срезать часть графика в норм режиме
 
             String[] lineData = line.split(",");
-//            rms.setTime(Double.parseDouble(lineData[1]));
+            digitSignal.setTime(Double.parseDouble(lineData[1]));
 
             for (int phase = 0; phase < 3; phase++) {
 
-                rms.setTime(Double.parseDouble(lineData[1]));
                 double U = Double.parseDouble(lineData[phase + 2]) * k1[phase] + k2[phase];
                 double I = Double.parseDouble(lineData[phase + 5]) * k1[phase + 3] + k2[phase + 3];
                 im.setImpedance(U, I, phase);
@@ -115,7 +110,7 @@ class ProcessDataManager {
                 ChartsXY.addAnalogData(0, phase, im.getImpRealMean(), im.getImpImagMean());
                 TimeDiagramChart.addAnalogData(0, phase, U);
                 TimeDiagramChart.addAnalogData(1, phase, I);
-                TimeDiagramChart.addAnalogData(2, phase, rms.getMean(phase));
+                TimeDiagramChart.addAnalogData(2, phase, digitSignal.getMean(phase));
 
                 if (relayManager.process()) {
                     System.out.println("Защита сработала");

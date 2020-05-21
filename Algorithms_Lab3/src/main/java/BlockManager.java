@@ -69,7 +69,7 @@ public class BlockManager {
      * если значение выше уставки, то блокировка срабатывает
      * @return True/False
      */
-    public boolean isBlockedI(double tripPoint) {
+    public boolean isUnderBlock(double tripPoint) {
 
         return compare(iA, tripPoint) ||
                 compare(iB, tripPoint) ||
@@ -84,6 +84,6 @@ public class BlockManager {
     }
 
     private boolean compare(double a, double b) {
-        return (a < b);
+        return (a > b);
     }
 }

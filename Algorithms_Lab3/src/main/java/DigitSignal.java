@@ -1,4 +1,4 @@
-public class RMS{
+public class DigitSignal {
     private double phA = 0;
     private double phB = 0;
     private double phC = 0;

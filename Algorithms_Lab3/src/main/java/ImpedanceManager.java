@@ -4,6 +4,7 @@ class ImpedanceManager {
 
     private int n = 80; // количество снятий сигнала за период
     private int k = 5;
+    private int k1; // масштабные коэффициенты
     private double[][] bufferU = new double[3][n]; // буфер памяти
     private double[][] bufferI = new double[3][n]; // буфер памяти
     private HashMap<String, Double> impedance;
@@ -13,44 +14,41 @@ class ImpedanceManager {
     private double[] actTime = {0,0,0};
     private double[] actU = {0,0,0};
     private double[] actI = {0,0,0};
-    private RMS rms;
+    private DigitSignal digitSignal;
     private BlockManager bl;
 
-    void setBlock(BlockManager bl){
+    void setBlockManager(BlockManager bl){
         this.bl = bl;
     }
 
-    void setRMS(RMS rms){
-        this.rms = rms;
+    void setDS(DigitSignal digitSignal){
+        this.digitSignal = digitSignal;
     }
 
-    RMS getRms(){return rms;}
+    DigitSignal getDigitSignal(){return digitSignal;}
 
     void setImpedance(double meanU, double meanI, int phase) {
+        k1 = 1000;
 
         this.phase = phase;
-//        System.out.println((meanU-actU[phase])*1000/(rms.getTime() - actTime[phase]) + " " + (meanI-actI[phase])*100000/(rms.getTime() - actTime[phase]));
-        bl.setMeanU(phase, Math.abs((meanU-actU[phase])*1000/(rms.getTime() - actTime[phase])));
-        bl.setMeanI(phase, Math.abs((meanI-actI[phase])*100000/(rms.getTime() - actTime[phase])));
-        actU[phase] = meanU;
-        actI[phase] = meanI;
-        actTime[phase] = rms.getTime();
 
         bufferU[phase][count] = meanU;
         bufferI[phase][count] = meanI;
 
         HashMap<String, Double> mapU = filterFourier(bufferU);
         HashMap<String, Double> mapI = filterFourier(bufferI);
+        bl.setMeanI(phase, (mapI.get("modul")-actI[phase])*k1/(digitSignal.getTime()-actTime[phase]));
+        actU[phase] = meanU;
+        actI[phase] = meanI;
+        actTime[phase] = digitSignal.getTime();
 
         impedance = new HashMap<>();
         impedance.put("modul", mapU.get("modul")/mapI.get("modul"));
         impedance.put("angle", mapU.get("angle")-mapI.get("angle"));
 
-        System.out.println(impedance.get("modul")/Math.sqrt(2));
-        rms.setMean(phase, impedance.get("modul")/Math.sqrt(2));
+        digitSignal.setMean(phase, impedance.get("modul")/Math.sqrt(2));
 
         if (phase == 2) if (++count == n) count = 0;
-
     }
 
     private HashMap<String, Double> filterFourier(double[][] buffer){
@@ -73,7 +71,6 @@ class ImpedanceManager {
 
             Harm += buffer[i] * Math.cos(delta_t * i) / (n);
         }
-
         return Harm;
     }
 
@@ -83,7 +80,6 @@ class ImpedanceManager {
 
             Harm += buffer[i] * Math.sin(delta_t * i) / (n);
         }
-
         return Harm;
     }
 
@@ -102,7 +98,6 @@ class ImpedanceManager {
     double getImpAngle(){
         return impedance.get("angle");
     }
-
 
     double getPhase(double Fx, double Fy, double z) {
         if (Fy > 0) {

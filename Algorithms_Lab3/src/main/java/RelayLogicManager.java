@@ -18,33 +18,33 @@ public class RelayLogicManager {
     private double timeSet = Double.POSITIVE_INFINITY; // время срабатывания защиты
     private boolean boo, key = false;
 
-    private RMS rms;
+    private DigitSignal digitSignal;
     private BlockManager bl;
 
-    public RMS getRms() {
-        return rms;
+    public DigitSignal getDigitSignal() {
+        return digitSignal;
     }
 
-    void setRms(RMS rms) {
-        this.rms = rms;
+    void setDigitSignal(DigitSignal digitSignal) {
+        this.digitSignal = digitSignal;
     }
 
-    void setBL(BlockManager bl) {
+    void setBlockManager(BlockManager bl) {
         this.bl = bl;
     }
 
     boolean process() {
 
-        if (rms.isTriggered(minTripPoint)) {
+        if (digitSignal.isTriggered(minTripPoint)) {
 
             setTrip(true);
 //            System.out.println(timeWait);
             System.out.println(
-                    "До отключения осталось: " + (timeSet - (timeWait = rms.getTime() - iniTime)));
+                    "До отключения осталось: " + (timeSet - (timeWait = digitSignal.getTime() - iniTime)));
         }
         else setTrip(false);
 
-        if (timeWait >= timeSet) boo = true; // срабатывание защиты
+        if (timeWait >= timeSet) boo = true; // флаг срабатывания защиты
 
         TimeDiagramChart.addAnalogData(2, 3, minTripPoint);
 
@@ -53,25 +53,24 @@ public class RelayLogicManager {
 
     private void launchAuthority(){
         if (!key) { // однократная логика пуска защиты
-            iniTime = rms.getTime();
+            iniTime = digitSignal.getTime();
             key = true;
-            System.out.println("puk");
 
-        if (rms.isTriggered(cutOffTrip)) timeSet = 10000; // время срабатывания токовой отсечки
-            else timeSet = 50000; // время срабатывания ДТЗ
+        if (digitSignal.isTriggered(cutOffTrip)) timeSet = 1000; // время срабатывания токовой отсечки
+            else timeSet = 5000; // время срабатывания ДЗ
     }}
 
     private void delaunchAuthority(){
-        System.out.println("отключение защиты");
+        if(!digitSignal.isTriggered(0.95 * minTripPoint) ){
         key = false;
         timeSet = Double.POSITIVE_INFINITY;
-    }
+    }}
 
     private void setTrip(boolean trip) {
         TimeDiagramChart.addDiscreteData(0, trip);
-//        System.out.println(bl.isBlockedI(1000) + " " + bl.isBlockedU(30));
-//        if (trip & !bl.isBlockedI(1000) & !bl.isBlockedU(30)) launchAuthority();
-        if (trip) launchAuthority();
+        System.out.println(bl.isUnderBlock(10));
+        if (trip & bl.isUnderBlock(10)) launchAuthority();
+//        if (trip) launchAuthority();
         else delaunchAuthority();
     }
 
