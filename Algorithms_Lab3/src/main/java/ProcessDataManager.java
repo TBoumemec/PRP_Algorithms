@@ -1,5 +1,3 @@
-import Values.RMS;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -27,7 +25,7 @@ class ProcessDataManager {
    Name of unpacked comtrade file
    PhA/AB/ABC__20/60/80  //  kind of short circuit // discritisation scale
     */
-        String comtrName = "KZ1";
+        String comtrName = "KZ6";
         String cfgName = path + comtrName + ".cfg"; // имя конфигурационного файла
         comtrCfg = new File(cfgName); // конфигурационный файл
         String datName = path + comtrName + ".dat"; // имя файла данных
@@ -119,7 +117,7 @@ class ProcessDataManager {
                 TimeDiagramChart.addAnalogData(1, phase, I);
                 TimeDiagramChart.addAnalogData(2, phase, rms.getMean(phase));
 
-                if (relayManager.process(phase)) {
+                if (relayManager.process()) {
                     System.out.println("Защита сработала");
                     break outer; // при срабатывании защиты происходит выход
                 }

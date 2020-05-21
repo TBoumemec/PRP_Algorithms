@@ -1,5 +1,3 @@
-import Values.RMS;
-
 import java.util.HashMap;
 
 class ImpedanceManager {
@@ -12,7 +10,9 @@ class ImpedanceManager {
     private double delta_t = 2 * Math.PI / n; // шаг дискретизации
     private int count = 1;
     private int phase; // обрабатываемая фаза
-    private double actTime, actU, actI = 0;
+    private double[] actTime = {0,0,0};
+    private double[] actU = {0,0,0};
+    private double[] actI = {0,0,0};
     private RMS rms;
     private BlockManager bl;
 
@@ -29,12 +29,12 @@ class ImpedanceManager {
     void setImpedance(double meanU, double meanI, int phase) {
 
         this.phase = phase;
-
-        bl.setMeanU(phase, (meanU-actU)/(rms.getTime() - actTime));
-        bl.setMeanI(phase, (meanI-actI)/(rms.getTime() - actTime));
-        actU = meanU;
-        actI = meanI;
-        actTime = rms.getTime();
+//        System.out.println((meanU-actU[phase])*1000/(rms.getTime() - actTime[phase]) + " " + (meanI-actI[phase])*100000/(rms.getTime() - actTime[phase]));
+        bl.setMeanU(phase, Math.abs((meanU-actU[phase])*1000/(rms.getTime() - actTime[phase])));
+        bl.setMeanI(phase, Math.abs((meanI-actI[phase])*100000/(rms.getTime() - actTime[phase])));
+        actU[phase] = meanU;
+        actI[phase] = meanI;
+        actTime[phase] = rms.getTime();
 
         bufferU[phase][count] = meanU;
         bufferI[phase][count] = meanI;
@@ -46,13 +46,10 @@ class ImpedanceManager {
         impedance.put("modul", mapU.get("modul")/mapI.get("modul"));
         impedance.put("angle", mapU.get("angle")-mapI.get("angle"));
 
+        System.out.println(impedance.get("modul")/Math.sqrt(2));
         rms.setMean(phase, impedance.get("modul")/Math.sqrt(2));
 
-
-
         if (phase == 2) if (++count == n) count = 0;
-
-
 
     }
 

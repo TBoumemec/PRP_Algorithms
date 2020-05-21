@@ -1,6 +1,4 @@
-package Values;
-
-public class SV implements ValuesInterface {
+public class RMS{
     private double phA = 0;
     private double phB = 0;
     private double phC = 0;
@@ -10,16 +8,21 @@ public class SV implements ValuesInterface {
         return time;
     }
 
-    public void setTime(double time) { this.time = time;}
+    public void setTime(double time) {
+        this.time = time;
+    }
 
     public void setMean(int phase, double mean) {
         switch (phase) {
             case (0):
                 this.phA = mean;
+                break;
             case (1):
                 this.phB = mean;
+                break;
             case (2):
                 this.phC = mean;
+                break;
         }
     }
 
@@ -35,4 +38,13 @@ public class SV implements ValuesInterface {
         return -1;
     }
 
+    public boolean isTriggered(double tripPoint) {
+        return compare(phA, tripPoint) ||
+                compare(phB, tripPoint) ||
+                compare(phC, tripPoint);
+    }
+
+    private boolean compare(double a, double b) {
+        return (a < b);
+    }
 }

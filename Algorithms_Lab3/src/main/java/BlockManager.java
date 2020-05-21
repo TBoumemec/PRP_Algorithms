@@ -1,5 +1,3 @@
-import Values.ValuesInterface;
-
 public class BlockManager {
     private double uA = 0;
     private double uB = 0;
@@ -20,10 +18,13 @@ public class BlockManager {
         switch (phase) {
             case (0):
                 this.uA = mean;
+                break;
             case (1):
                 this.uB = mean;
+                break;
             case (2):
                 this.uC = mean;
+                break;
         }
     }
 
@@ -43,8 +44,10 @@ public class BlockManager {
         switch (phase) {
             case (0):
                 this.iA = mean;
+                break;
             case (1):
                 this.iB = mean;
+                break;
             case (2):
                 this.iC = mean;
         }
@@ -81,6 +84,6 @@ public class BlockManager {
     }
 
     private boolean compare(double a, double b) {
-        return (a > b);
+        return (a < b);
     }
 }
