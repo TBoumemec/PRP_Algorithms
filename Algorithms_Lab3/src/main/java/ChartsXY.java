@@ -52,7 +52,7 @@ public class ChartsXY {
 		addSeries("Za", 0);
 		addSeries("Zb", 0);
 		addSeries("Zc", 0);
-		addProtectiveField("Уставка", 0, 100);
+		addProtectiveField("Уставка", 0, 145);
 
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 		renderer.setSeriesLinesVisible(0, false);
@@ -74,8 +74,7 @@ public class ChartsXY {
 
 		double step = 1;
 		double x, y;
-		for (y = 0, x = flag - step; x < flag;
-			 		y = calcY(y, flag, step), x = calcX(y, flag)) {
+		for (y = 0, x = flag - step; x < flag; y = calcY(y, flag, step), x = calcX(y, flag)) {
 			series.add(x, y);
 
 		}

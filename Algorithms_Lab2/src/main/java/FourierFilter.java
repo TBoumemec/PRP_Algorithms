@@ -1,6 +1,6 @@
 class FourierFilter {
 
-    private int n = 20; // количество снятий сигнала за период
+    private int n = 40; // количество снятий сигнала за период
     private int k = 5; // гармоника блокировки
     private double[][] buffer = new double[3][n]; // буфер памяти
     private double delta_t = 2 * Math.PI / n; // шаг дискретизации

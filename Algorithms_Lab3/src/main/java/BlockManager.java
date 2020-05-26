@@ -1,10 +1,6 @@
 public class BlockManager {
-    private double uA = 0;
-    private double uB = 0;
-    private double uC = 0;
-    private double iA = 0;
-    private double iB = 0;
-    private double iC = 0;
+    private double uA, uB, uC = 0;
+    private double iA, iB,iC = 0;
 
     public double getTime() {
         return 0;

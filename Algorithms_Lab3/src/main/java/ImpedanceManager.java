@@ -3,17 +3,16 @@ import java.util.HashMap;
 class ImpedanceManager {
 
     private int n = 80; // количество снятий сигнала за период
-    private int k = 5;
     private int k1; // масштабные коэффициенты
     private double[][] bufferU = new double[3][n]; // буфер памяти
     private double[][] bufferI = new double[3][n]; // буфер памяти
-    private HashMap<String, Double> impedance;
+    private HashMap<String, Double> impedance; // импеданс
     private double delta_t = 2 * Math.PI / n; // шаг дискретизации
     private int count = 1;
     private int phase; // обрабатываемая фаза
-    private double[] actTime = {0,0,0};
-    private double[] actU = {0,0,0};
-    private double[] actI = {0,0,0};
+    private double[] actTime = {0,0,0}; // буффер времени count - 1
+    private double[] actU = {0,0,0}; // буффер напряжения count - 1
+    private double[] actI = {0,0,0}; // буффер тока count - 1
     private DigitSignal digitSignal;
     private BlockManager bl;
 

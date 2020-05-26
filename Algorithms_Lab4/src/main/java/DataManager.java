@@ -6,17 +6,18 @@ import java.io.IOException;
 
 /** Класс считывания, расчета и визуализации данных
         */
-class ProcessDataManager {
+class DataManager {
 
     private File comtrCfg, comtrDat; // конфигурационный/файл данных
     private double[] k1, k2; // масштабные коэффициенты
 
-    private ImpedanceManager im = new ImpedanceManager();
-    private DigitSignal digitSignal = new DigitSignal();
-    private BlockManager bm = new BlockManager();
-    private RelayLogicManager relayManager = new RelayLogicManager();
+    private Processor processor = new Processor();
+    private ZeroSeqSignal zeroSeqSignal = new ZeroSeqSignal();
+    private RelayLogicManager termRight = new RelayLogicManager("right");
+    private Vector vecI = new Vector();
+    private Vector vecU = new Vector();
 
-    ProcessDataManager() {
+    DataManager() {
         // внимательно с путем файла
         String path = "C:\\Users\\Alexander\\JavaProjects\\MicropocessorRealyAlgorithms\\Algorithms_Lab3\\src\\data\\Опыты\\";
 
@@ -25,7 +26,7 @@ class ProcessDataManager {
         2ph: KZ1 > KZ3 = KZ5 = KZ6
         3ph: KZ2
          */
-        String comtrName = "KZ2";
+        String comtrName = "KZ7";
         String cfgName = path + comtrName + ".cfg"; // имя конфигурационного файла
         comtrCfg = new File(cfgName); // конфигурационный файл
         String datName = path + comtrName + ".dat"; // имя файла данных
@@ -37,10 +38,10 @@ class ProcessDataManager {
         // задание фильтрам соответствующих векторов
 
         // задание логике РЗ соответствующих классов сигналов и блокировки
-        im.setDS(digitSignal);
-        relayManager.setDigitSignal(digitSignal);
-        im.setBlockManager(bm);
-        relayManager.setBlockManager(bm);
+        termRight.setZeroSeqSignal(zeroSeqSignal);
+
+        processor.setVector("I", vecI);
+        processor.setVector("U", vecU);
 
         // парсинг конфигурации файла
         parseConfigFile(comtrCfg);
@@ -96,31 +97,40 @@ class ProcessDataManager {
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line;
 
-        outer:
         while ((line = br.readLine()) != null) { // outer - метка для выхода из внешнего цикла
             count++;
 
             if (count < 2000) continue; // позволяет срезать часть графика в норм режиме
 
             String[] lineData = line.split(",");
-            digitSignal.setTime(Double.parseDouble(lineData[1]));
+            zeroSeqSignal.setTime(Double.parseDouble(lineData[1]));
 
             for (int phase = 0; phase < 3; phase++) {
 
+                // разархивирование данных
                 double U = Double.parseDouble(lineData[phase + 2]) * k1[phase] + k2[phase];
                 double I = Double.parseDouble(lineData[phase + 5]) * k1[phase + 3] + k2[phase + 3];
-                im.setImpedance(U, I, phase);
 
-                ChartsXY.addAnalogData(0, phase, im.getImpRealMean(), im.getImpImagMean());
+                // оцифровка сигнала и преобразование в векторную форму
+                processor.filtrateFourier(U, I, phase);
+
                 TimeDiagramChart.addAnalogData(0, phase, U);
                 TimeDiagramChart.addAnalogData(1, phase, I);
-                TimeDiagramChart.addAnalogData(2, phase, digitSignal.getMean(phase));
 
-                if (relayManager.process()) {
-                    System.out.println(digitSignal.getTime());
-                    System.out.println("Защита сработала");
-                    break outer; // при срабатывании защиты происходит выход
-                }
+            }
+
+            // расчет нулевых составляющих сигнала U/I/S
+            zeroSeqSignal.setPower(vecI, vecU);
+
+            TimeDiagramChart.addAnalogData(2, 0, zeroSeqSignal.getU30RMS());
+            TimeDiagramChart.addAnalogData(2, 1, zeroSeqSignal.getS30RMS());
+            TimeDiagramChart.addAnalogData(3, 0, zeroSeqSignal.getI30RMS());
+
+            // логика защиты
+            if (termRight.process()) {
+                System.out.println(zeroSeqSignal.getTime());
+                System.out.println("Защита сработала");
+                break; // при срабатывании защиты происходит выход
             }
         }
     }

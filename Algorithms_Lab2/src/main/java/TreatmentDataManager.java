@@ -32,7 +32,7 @@ import java.io.IOException;
     Name of unpacked comtrade file
     PhA/AB/ABC__20/60/80  //  kind of short circuit // discritisation scale
      */
-         String comtrName = "Trans2ObmVnutBC";
+         String comtrName = "Trans2ObmVneshABC";
          String cfgName = path + comtrName + ".cfg"; // имя конфигурационного файла
          comtrCfg = new File(cfgName); // конфигурационный файл
          String datName = path + comtrName + ".dat"; // имя файла данных

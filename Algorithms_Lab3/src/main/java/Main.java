@@ -8,7 +8,7 @@ public class Main {
         TimeDiagramChart.createAnalogChart("I", 1);
         TimeDiagramChart.createAnalogChart("Impedance", 2);
         TimeDiagramChart.createDiscreteChart("Flag", 0);
-        ChartsXY.createAnalogChart("PUK", 0);
+        ChartsXY.createAnalogChart("Godograph", 0);
 
         ProcessDataManager inD = new ProcessDataManager();
         inD.start();
